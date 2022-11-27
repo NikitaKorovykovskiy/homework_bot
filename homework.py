@@ -32,11 +32,12 @@ HOMEWORK_VERDICTS = {
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения, которые необходимы для работы программы."""
+    """Проверяет доступность переменных окружения,
+    которые необходимы для работы программы."""
     if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
         return True
     else:
-        logging.critical(f'Нет необходимых данных')
+        logging.critical('Нет необходимых данных')
 
 
 def send_message(bot, message):
@@ -70,7 +71,8 @@ def get_api_answer(timestamp):
 
 def check_response(response):
     """проверяет ответ API на соответствие документации.
-    В качестве параметра функция получает ответ API, приведенный к типам данных Python"""
+    В качестве параметра функция получает ответ API,
+    приведенный к типам данных Python"""
     if isinstance(response, dict):
         if 'homeworks' in response:
             if isinstance(response['homeworks'], list):
@@ -81,7 +83,8 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Извлекает из информации о конкретной домашней работе статус этой работы."""
+    """Извлекает из информации о конкретной домашней
+    работе статус этой работы."""
     if 'homework_name' not in homework:
         raise KeyError('Отсутствует ключ "homework_name" в ответе API ')
     if 'status' not in homework:

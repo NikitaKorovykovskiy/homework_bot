@@ -32,8 +32,7 @@ HOMEWORK_VERDICTS = {
 
 
 def check_tokens():
-    """Проверяет доступность переменных окружения,
-    которые необходимы для работы программы."""
+    """Проверяет доступность переменных окружения."""
     if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
         return True
     else:
@@ -41,10 +40,11 @@ def check_tokens():
 
 
 def send_message(bot, message):
-    """отправляет сообщение в Telegram чат,
-    определяемый переменной окружения TELEGRAM_CHAT_ID.
+    """Отправляет сообщение в Telegram чат.
+    Чат задан переменной окружения TELEGRAM_CHAT_ID.
     Принимает на вход два параметра: экземпляр класса Bot
-    и строку с текстом сообщения"""
+    и строку с текстом сообщения.
+    """
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
         logging.debug(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
@@ -53,10 +53,11 @@ def send_message(bot, message):
 
 
 def get_api_answer(timestamp):
-    """делает запрос к единственному эндпоинту API-сервиса.\
-        В качестве параметра в функцию передается временная метка.
-        В случае успешного запроса должна вернуть ответ API,
-        приведя его из формата JSON к типам данных Python"""
+    """Делает запрос к единственному эндпоинту API-сервиса.
+    В качестве параметра в функцию передается временная метка.
+    В случае успешного запроса должна вернуть ответ API,
+    приведя его из формата JSON к типам данных Python.
+    """
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
     except Exception as error:
@@ -70,9 +71,10 @@ def get_api_answer(timestamp):
 
 
 def check_response(response):
-    """проверяет ответ API на соответствие документации.
+    """Проверяет ответ API на соответствие документации.
     В качестве параметра функция получает ответ API,
-    приведенный к типам данных Python"""
+    приведенный к типам данных Python
+    """
     if isinstance(response, dict):
         if 'homeworks' in response:
             if isinstance(response['homeworks'], list):
@@ -83,8 +85,9 @@ def check_response(response):
 
 
 def parse_status(homework):
-    """Извлекает из информации о конкретной домашней
-    работе статус этой работы."""
+    """Извлекает из информации о конкретной домашней работе.
+    Получает татус этой работы.
+    """
     if 'homework_name' not in homework:
         raise KeyError('Отсутствует ключ "homework_name" в ответе API ')
     if 'status' not in homework:

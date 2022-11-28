@@ -21,7 +21,7 @@ logging.basicConfig(
 RETRY_PERIOD = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
-payload = {'from_date': 1667260800}
+payload = {'from_date': 1669643149}
 
 HOMEWORK_VERDICTS = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
@@ -76,7 +76,6 @@ def check_response(response):
     В качестве параметра функция получает ответ API,
     приведенный к типам данных Python
     """
-
     if not isinstance(response, dict):
         raise TypeError('Ответ API отличен от словаря')
     if 'homeworks' not in response:

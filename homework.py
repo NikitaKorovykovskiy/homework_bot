@@ -32,8 +32,7 @@ HOMEWORK_VERDICTS = {
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-    if all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
-        return True
+    return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
 def send_message(bot, message):
@@ -47,6 +46,7 @@ def send_message(bot, message):
         logging.debug(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
     except telegram.error.TelegramError as error:
         logging.error(error)
+        raise telegram.error.TelegramError
 
 
 def get_api_answer(timestamp):
@@ -58,8 +58,7 @@ def get_api_answer(timestamp):
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=payload)
     except Exception as error:
-        logging.error(f'Cервер Практикум.Домашка вернул ошибку: {error}')
-        send_message(f'Cервер Практикум.Домашка вернул ошибку: {error}')
+        raise Exception(f'Cервер Практикум.Домашка вернул ошибку: {error}')
     if response.status_code != HTTPStatus.OK:
         status_code = response.status_code
         logging.error(f'Ошибка {status_code}')
@@ -108,25 +107,30 @@ def main():
     if not check_tokens():
         logging.critical('Нет необходимых данных')
         return False
-    else:
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        timestamp = int(time.time())
-        while True:
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    timestamp = int(time.time())
+    while True:
+        try:
             try:
                 response = get_api_answer(timestamp)
-                answer = check_response(response)
-                logging.info('Список домашек получен')
-                if answer:
-                    send_message(bot, parse_status(answer[0]))
-                    timestamp = response['current_date']
-                else:
-                    logging.info('Новых уведомлений нет')
             except Exception as error:
-                message = f'Сбой в работе программы: {error}'
-                send_message(bot, message)
-                logging.error(message)
-            finally:
-                time.sleep(RETRY_PERIOD)
+                logging.error(
+                    f'Cервер Практикум.Домашка вернул ошибку: {error}')
+                send_message(
+                    f'Cервер Практикум.Домашка вернул ошибку: {error}')
+            homeworks = check_response(response)
+            logging.info('Список домашек получен')
+            if homeworks:
+                send_message(bot, parse_status(homeworks[0]))
+                timestamp = response['current_date']
+            else:
+                logging.info('Новых уведомлений нет')
+        except Exception as error:
+            message = f'Сбой в работе программы: {error}'
+            send_message(bot, message)
+            logging.error(message)
+        finally:
+            time.sleep(RETRY_PERIOD)
 
 
 if __name__ == '__main__':

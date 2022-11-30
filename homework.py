@@ -7,6 +7,8 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
+from exceptions import NotSendMessageException
+
 load_dotenv()
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -46,7 +48,9 @@ def send_message(bot, message):
         logging.debug(f'Сообщение в чат {TELEGRAM_CHAT_ID}: {message}')
     except telegram.error.TelegramError as error:
         logging.error(error)
-        raise telegram.error.TelegramError
+        raise NotSendMessageException(
+            f'Ошибка при отправке сообщения в Telegram: {error}'
+        )
 
 
 def get_api_answer(timestamp):
@@ -111,13 +115,7 @@ def main():
     timestamp = int(time.time())
     while True:
         try:
-            try:
-                response = get_api_answer(timestamp)
-            except Exception as error:
-                logging.error(
-                    f'Cервер Практикум.Домашка вернул ошибку: {error}')
-                send_message(
-                    f'Cервер Практикум.Домашка вернул ошибку: {error}')
+            response = get_api_answer(timestamp)
             homeworks = check_response(response)
             logging.info('Список домашек получен')
             if homeworks:
@@ -125,6 +123,13 @@ def main():
                 timestamp = response['current_date']
             else:
                 logging.info('Новых уведомлений нет')
+        except NotSendMessageException as error:
+            logging.error(
+                f'Cервер Практикум.Домашка вернул ошибку: {error}'
+            )
+            send_message(
+                f'Cервер Практикум.Домашка вернул ошибку: {error}'
+            )
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(bot, message)

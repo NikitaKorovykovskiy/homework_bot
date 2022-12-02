@@ -123,13 +123,6 @@ def main():
                 timestamp = response['current_date']
             else:
                 logging.info('Новых уведомлений нет')
-        except NotSendMessageException as error:
-            logging.error(
-                f'Cервер Практикум.Домашка вернул ошибку: {error}'
-            )
-            send_message(
-                f'Cервер Практикум.Домашка вернул ошибку: {error}'
-            )
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(bot, message)
